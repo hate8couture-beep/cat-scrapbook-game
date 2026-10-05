@@ -1,34 +1,242 @@
-&lt;!doctype html&gt;
-&lt;html lang="ru"&gt;
-&lt;head&gt;
-&lt;meta charset="utf-8" /&gt;
-&lt;meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" /&gt;
-&lt;meta name="theme-color" content="#f4ead8" /&gt;
-&lt;title&gt;К Зозяцке! — scrapbook platformer&lt;/title&gt;
-&lt;style&gt;:root{color-scheme:light;--paper:#f6eddf;--ink:#392d2a;--red:#d8614d;--blue:#5a98b5}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#201b1a;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}#wrap{width:100%;height:100%;display:grid;place-items:center;position:relative;background:radial-gradient(circle at 50% 20%,#5d4a42,#211b1a 72%)}canvas{display:block;max-width:100vw;max-height:100vh;width:auto;height:auto;aspect-ratio:16/9;box-shadow:0 28px 80px #0009;background:#f4e5ce;touch-action:none}#loading{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-weight:800;font-size:clamp(18px,3vw,34px);letter-spacing:.04em;text-shadow:0 3px 8px #000;background:#1e1918;z-index:3}#touch{position:absolute;inset:0;display:none;pointer-events:none;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));align-items:end;justify-content:space-between}.pad,.forms{display:flex;gap:9px;pointer-events:auto}.forms{position:absolute;right:18px;top:18px}.jump{pointer-events:auto;min-width:118px}.pad button,.forms button,.jump{border:2px solid #fff9;background:#392d2acc;color:white;border-radius:20px;padding:16px 20px;font-weight:900;font-size:20px;backdrop-filter:blur(8px);box-shadow:0 5px 16px #0005}.forms button{padding:10px 13px;font-size:17px}.pad button:active,.forms button:active,.jump:active{transform:scale(.94);background:#d8614dcc}@media (pointer:coarse),(max-width:900px){#touch{display:flex}}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;main id="wrap"&gt;
-&lt;canvas id="game" width="1600" height="900" aria-label="К Зозяцке — платформер про кота"&gt;&lt;/canvas&gt;
-&lt;div id="loading"&gt;Собираем альбом…&lt;/div&gt;
-&lt;div id="touch" aria-hidden="true"&gt;
-&lt;div class="pad"&gt;&lt;button data-key="left"&gt;◀&lt;/button&gt;&lt;button data-key="right"&gt;▶&lt;/button&gt;&lt;/div&gt;
-&lt;div class="forms"&gt;&lt;button data-form="normal"&gt;🐾&lt;/button&gt;&lt;button data-form="ball"&gt;●&lt;/button&gt;&lt;button data-form="cape"&gt;⌁&lt;/button&gt;&lt;button data-form="jelly"&gt;≈&lt;/button&gt;&lt;/div&gt;
-&lt;button class="jump" data-key="jump"&gt;ПРЫЖОК&lt;/button&gt;
-&lt;/div&gt;
-&lt;/main&gt;
-&lt;script&gt;window.ASSETS={};&lt;/script&gt;
-&lt;script src="asset_cat.js"&gt;&lt;/script&gt;
-&lt;script src="asset_ball.js"&gt;&lt;/script&gt;
-&lt;script src="asset_cape.js"&gt;&lt;/script&gt;
-&lt;script src="asset_jelly.js"&gt;&lt;/script&gt;
-&lt;script src="asset_mouse.js"&gt;&lt;/script&gt;
-&lt;script src="asset_can.js"&gt;&lt;/script&gt;
-&lt;script src="asset_rare.js"&gt;&lt;/script&gt;
-&lt;script src="asset_owner.js"&gt;&lt;/script&gt;
-&lt;script src="asset_hand.js"&gt;&lt;/script&gt;
-&lt;script src="game.js"&gt;&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4ead8">
+<title>К Зозяцке!</title>
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#201b1a;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif
+}
+
+#wrap{
+  width:100%;
+  height:100%;
+  display:grid;
+  place-items:center;
+  position:relative;
+  background:radial-gradient(circle at 50% 20%,#5d4a42,#211b1a 72%)
+}
+
+canvas{
+  display:block;
+  max-width:100vw;
+  max-height:100vh;
+  width:auto;
+  height:auto;
+  aspect-ratio:16/9;
+  background:#f4e5ce;
+  box-shadow:0 28px 80px #0009;
+  touch-action:none
+}
+
+#loading{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:#1e1918;
+  color:white;
+  font-size:32px;
+  font-weight:800;
+  z-index:3
+}
+
+#touch{
+  position:absolute;
+  inset:0;
+  display:none;
+  pointer-events:none;
+  padding:20px;
+  align-items:end;
+  justify-content:space-between
+}
+
+.pad,.forms{
+  display:flex;
+  gap:8px;
+  pointer-events:auto
+}
+
+.forms{
+  position:absolute;
+  right:18px;
+  top:18px
+}
+
+button{
+  border:2px solid #fff9;
+  background:#392d2acc;
+  color:#fff;
+  border-radius:18px;
+  padding:14px 18px;
+  font-weight:900;
+  font-size:18px
+}
+
+.jump{
+  pointer-events:auto
+}
+
+@media (pointer:coarse),(max-width:900px){
+  #touch{display:flex}
+}
+</style>
+</head>
+
+<body>
+
+<main id="wrap">
+
+<canvas
+  id="game"
+  width="1600"
+  height="900">
+</canvas>
+
+<div id="loading">
+  Собираем альбом…
+</div>
+
+<div id="touch">
+
+  <div class="pad">
+    <button data-key="left">◀</button>
+    <button data-key="right">▶</button>
+  </div>
+
+  <div class="forms">
+    <button data-form="normal">🐾</button>
+    <button data-form="ball">●</button>
+    <button data-form="cape">⌁</button>
+    <button data-form="jelly">≈</button>
+  </div>
+
+  <button
+    class="jump"
+    data-key="jump">
+    ПРЫЖОК
+  </button>
+
+</div>
+
+</main>
+
+<script>
+const svg = s =>
+  'data:image/svg+xml;charset=utf-8,' +
+  encodeURIComponent(s);
+
+window.ASSETS = {
+
+cat: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="260">
+  <ellipse cx="135" cy="155" rx="100" ry="65" fill="#fff4df" stroke="#6f4a37" stroke-width="8"/>
+  <circle cx="205" cy="105" r="55" fill="#d9793e"/>
+  <path d="M165 70 L178 18 L205 69" fill="#d9793e"/>
+  <path d="M210 67 L245 20 L253 82" fill="#d9793e"/>
+  <ellipse cx="213" cy="118" rx="30" ry="26" fill="#fff4df"/>
+  <circle cx="224" cy="99" r="6" fill="#333"/>
+  <circle cx="250" cy="119" r="6" fill="#d98b8b"/>
+  <path d="M42 160 Q0 105 30 60" fill="none" stroke="#d9793e" stroke-width="22" stroke-linecap="round"/>
+</svg>
+`),
+
+ball: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">
+  <circle cx="110" cy="110" r="94" fill="#d9793e" stroke="#6f4a37" stroke-width="10"/>
+  <path d="M45 95 Q110 45 175 100 M50 135 Q115 85 175 140"
+  fill="none" stroke="#fff0d8" stroke-width="12"/>
+</svg>
+`),
+
+cape: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="350" height="220">
+  <path d="M120 100 L25 190 L220 175 Z" fill="#c94f46"/>
+  <ellipse cx="175" cy="125" rx="105" ry="60" fill="#fff4df" stroke="#6f4a37" stroke-width="8"/>
+  <circle cx="260" cy="90" r="48" fill="#d9793e"/>
+  <circle cx="275" cy="80" r="5" fill="#222"/>
+</svg>
+`),
+
+jelly: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="120">
+  <rect x="15" y="20" width="330" height="80" rx="40"
+  fill="#e58b53" stroke="#6f4a37" stroke-width="8"/>
+  <circle cx="280" cy="55" r="7" fill="#222"/>
+</svg>
+`),
+
+mouse: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="120">
+  <ellipse cx="95" cy="70" rx="62" ry="35" fill="#84736b"/>
+  <circle cx="145" cy="55" r="25" fill="#84736b"/>
+  <circle cx="149" cy="30" r="15" fill="#d7a5a5"/>
+  <circle cx="155" cy="52" r="4" fill="#111"/>
+  <path d="M38 75 Q0 60 8 30" fill="none" stroke="#84736b" stroke-width="8"/>
+</svg>
+`),
+
+can: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="160">
+  <rect x="20" y="20" width="100" height="125" rx="18"
+  fill="#e57b44" stroke="#6f4a37" stroke-width="8"/>
+  <text x="70" y="100" text-anchor="middle"
+  font-size="60">🐟</text>
+</svg>
+`),
+
+rare: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="180">
+  <rect x="20" y="20" width="120" height="140" rx="20"
+  fill="#d9aa3f" stroke="#75551e" stroke-width="10"/>
+  <text x="80" y="110" text-anchor="middle"
+  font-size="65">🐟</text>
+  <text x="80" y="35" text-anchor="middle"
+  font-size="25">★</text>
+</svg>
+`),
+
+owner: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="950">
+  <circle cx="380" cy="180" r="115" fill="#efd0bb"/>
+  <path d="M265 130 Q380 25 495 130 L480 55 L280 55 Z"
+  fill="#6c5141"/>
+  <rect x="175" y="300" width="410" height="420" rx="110"
+  fill="#262126"/>
+  <ellipse cx="275" cy="745" rx="180" ry="105" fill="#222"/>
+  <ellipse cx="490" cy="745" rx="180" ry="105" fill="#222"/>
+</svg>
+`),
+
+hand: svg(`
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="260">
+  <path d="M50 160
+  Q80 100 120 70
+  Q150 40 175 70
+  Q200 35 220 75
+  Q250 55 260 95
+  Q275 140 230 175
+  Q180 215 100 220 Z"
+  fill="#efd0bb"
+  stroke="#9f7966"
+  stroke-width="7"/>
+</svg>
+`)
+
+};
+</script>
+
+<script src="game.js"></script>
+
+</body>
+</html>
