@@ -82,7 +82,7 @@ B(2880,585,170);
 M(3120,570,170,30,'y',110,1.4,'wood');
 P(3160,430,220,28,'wood');
 pickups.push({x:3230,y:365,type:'can',got:false});
-checkpoints.push({x:3440,y:665,active:false});
+checkpoints.push({x:3000,y:665,active:false});
 
 P(3580,650,220,30,'card');
 P(3870,575,190,30,'card');
@@ -96,7 +96,7 @@ P(4690,475,210,30,'wood');
 M(4970,555,180,28,'y',130,1.1,'wood');
 P(5240,430,220,30,'wood');
 pickups.push({x:5305,y:365,type:'rare',got:false});
-checkpoints.push({x:5530,y:665,active:false});
+checkpoints.push({x:5400,y:665,active:false});
 
 hazards.push({x:5850,y:738,w:260,h:30,type:'puddle'});
 M(5900,620,160,26,'x',190,1.4,'sponge');
