@@ -102,10 +102,10 @@ function P(x,y,w,h=36,kind='solid'){ platforms.push({x,y,w,h,kind,id:'p'+platfor
 function M(x,y,w,h,axis,range,speed,kind='flying'){ movers.push({x,y,w,h,axis,range,speed,kind,baseX:x,baseY:y,px:x,py:y,phase:Math.random()*6.28,id:'m'+movers.length}); }
 function B(x,y,w,h=28){ breakables.push({x,y,w,h,stage:0,timer:0,broken:false,respawn:0,id:'b'+breakables.length}); }
 function Fan(x,y,w,h,power=1180,dx=.62,dy=-.82){ fans.push({x,y,w,h,power,dx,dy}); }
-function checkpoint(x,y){ checkpoints.push({x,y,active:false}); }
+function checkpoint(x,y){ checkpoints.push({x,y,active:false,anim:0}); }
 function unlockAt(x,y,form,label){ unlocks.push({x,y,form,label}); }
 function pickup(x,y,type){ pickups.push({x,y,type,got:false}); }
-function mouse(x,y,min,max){ mice.push({x,y,min,max,v:85,w:72,h:58,alive:true,deadTimer:0,vx:0,vy:0,rot:0}); }
+function mouse(x,y,min,max){ mice.push({x,y:y-10,min,max,v:85,w:96,h:68,alive:true,deadTimer:0,vx:0,vy:0,rot:0}); }
 
 function buildLevel(){
   platforms.length=0; movers.length=0; breakables.length=0; fans.length=0; checkpoints.length=0; pickups.length=0; mice.length=0; unlocks.length=0;
@@ -164,7 +164,7 @@ function startGame(){
   player.x=180; player.y=GROUND_Y-dims('normal').h; player.vx=0; player.vy=0; player.face=1; player.form='normal'; player.cans=0; player.rare=0;
   player.unlocked={ normal:true, ball:false, cape:false, jelly:false }; player.checkpoint={ x:180, y:GROUND_Y-dims('normal').h }; player.inv=0; player.standing=null;
   for (const p of pickups) p.got=false;
-  for (const c of checkpoints) c.active=false;
+  for (const c of checkpoints){ c.active=false; c.anim=0; }
   for (const u of unlocks){}
   for (const b of breakables){ b.stage=0; b.timer=0; b.broken=false; b.respawn=0; }
   for (const m of mice){ m.alive=true; m.deadTimer=0; m.vx=0; m.vy=0; m.rot=0; }
@@ -240,6 +240,7 @@ function updatePlay(dt){
   if (player.inv>0) player.inv -= dt;
   if (unlockFreeze>0){ unlockFreeze -= dt; return; }
   updateMovers(dt); updateBreakables(dt); updateMice(dt);
+  for (const c of checkpoints){ if (c.active && c.anim < 999) c.anim += dt; }
 
   const d = dims();
   const wasStanding = player.standing;
@@ -308,6 +309,7 @@ function updatePlay(dt){
     if (!c.active && rectsOverlap(playerRect(), r)){
       for (const q of checkpoints) q.active = false;
       c.active = true;
+      c.anim = 0.001;
       player.checkpoint = { x:c.x, y:GROUND_Y-dims('normal').h };
       message = 'ЧЕКПОИНТ'; messageT = 1.4; tone(588,.08,'triangle');
     }
@@ -349,6 +351,7 @@ function updateCutscene(dt){
   cutscene.t += dt;
   updateMovers(dt);
   updateMice(dt);
+  for (const c of checkpoints){ if (c.active && c.anim < 999) c.anim += dt; }
   if (cutscene.phase === 0){
     const tx = cutscene.targetX, ty = cutscene.targetY;
     player.x += (tx - player.x) * Math.min(1, dt*4.5);
@@ -368,17 +371,19 @@ function updateCutscene(dt){
 
 function drawRounded(x,y,w,h,r){ const q=Math.min(r,w/2,h/2); ctx.beginPath(); ctx.roundRect(x,y,w,h,q); }
 function drawBackground(){
-  const sky = ctx.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#f2dec3'); sky.addColorStop(1,'#dbb286'); ctx.fillStyle = sky; ctx.fillRect(0,0,W,H);
-  ctx.globalAlpha=.12; ctx.strokeStyle='#7c5a44'; ctx.lineWidth=3;
-  for(let i=-240;i<W+260;i+=180){ ctx.beginPath(); ctx.moveTo(i-(cameraX*.08%180),0); ctx.lineTo(i+90-(cameraX*.08%180),H); ctx.stroke(); }
-  ctx.globalAlpha=1;
-  const off=-cameraX*.18;
-  const wx=210-cameraX*.12; ctx.fillStyle='#8ecae6'; ctx.fillRect(wx,90,310,300); ctx.fillStyle='#fbefd5'; ctx.lineWidth=16; ctx.strokeStyle='#e9d1aa'; ctx.strokeRect(wx,90,310,300); ctx.fillRect(wx+145,90,18,300); ctx.fillRect(wx,230,310,18);
-  ctx.fillStyle='#855b3f'; ctx.fillRect(660+off,240,540,410);
-  ctx.fillStyle='#6f8b75'; ctx.fillRect(3320+off,150,720,500);
-  ctx.fillStyle='#8e6949'; ctx.fillRect(5460+off,210,740,440);
-  ctx.fillStyle='#6b422d'; for(const sx of [900,2460,3920,6100,7900]){ const xx=sx+off; ctx.fillRect(xx,340,420,28); ctx.fillRect(xx,520,420,28); }
-  ctx.fillStyle='#54714b'; for(let i=0;i<22;i++){ const xx=(480+i*430+off)%2400; ctx.beginPath(); ctx.ellipse(xx,160+(i%3)*30,22,42,(i%2?.6:-.6),0,7); ctx.fill(); }
+  const bg = images.bgRoom;
+  if (bg && bg.width){
+    ctx.drawImage(bg, 0, 0, W, H);
+    // мягкий параллакс-оверлей, чтобы сцена не была совсем статичной
+    ctx.save();
+    ctx.globalAlpha = 0.08;
+    ctx.strokeStyle = '#7c5a44';
+    ctx.lineWidth = 3;
+    for(let i=-240;i<W+260;i+=180){ ctx.beginPath(); ctx.moveTo(i-(cameraX*.05%180),0); ctx.lineTo(i+90-(cameraX*.05%180),H); ctx.stroke(); }
+    ctx.restore();
+  } else {
+    const sky = ctx.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#f2dec3'); sky.addColorStop(1,'#dbb286'); ctx.fillStyle = sky; ctx.fillRect(0,0,W,H);
+  }
 }
 
 function drawGroundStrip(seg){
@@ -428,11 +433,23 @@ function drawFan(f){
   ctx.restore();
 }
 function drawCheckpoint(c){
-  const im = images.checkpointFlag2;
-  if (im && im.width) ctx.drawImage(im, c.x-52, c.y-136, 120, 120);
+  const im = images.checkpointFlagRaiseSheet || images.checkpointFlag2;
+  if (im && im.width){
+    if (images.checkpointFlagRaiseSheet && images.checkpointFlagRaiseSheet.width){
+      const cols = 6;
+      const sw = im.width / cols, sh = im.height;
+      const frame = c.active ? Math.min(5, Math.floor((c.anim||999) / 0.08)) : 0;
+      ctx.drawImage(im, sw*frame, 0, sw, sh, c.x-58, c.y-144, 120, 120);
+    } else {
+      ctx.drawImage(im, c.x-52, c.y-136, 120, 120);
+    }
+  }
   if (c.active){
-    ctx.save(); ctx.globalAlpha=.35 + Math.sin(time*7)*.18; ctx.fillStyle='#ffd25f';
-    ctx.beginPath(); ctx.arc(c.x+6,c.y-90,46,0,7); ctx.fill(); ctx.restore();
+    ctx.save();
+    ctx.globalAlpha=.28 + Math.sin(time*7)*.2;
+    ctx.fillStyle='#ffd25f';
+    ctx.beginPath(); ctx.arc(c.x+2,c.y-88,42,0,7); ctx.fill();
+    ctx.restore();
   }
 }
 function drawPickup(p){
@@ -444,21 +461,39 @@ function drawPickup(p){
 }
 function drawUnlock(u){
   if (player.unlocked[u.form]) return;
-  ctx.save(); ctx.translate(u.x,u.y+Math.sin(time*2.5)*7); ctx.fillStyle='#fff0d9'; ctx.strokeStyle='#5c4439'; ctx.lineWidth=5; ctx.beginPath(); ctx.arc(0,0,48,0,7); ctx.fill(); ctx.stroke(); ctx.fillStyle='#d85e50'; ctx.textAlign='center'; ctx.font='900 19px system-ui'; ctx.fillText(u.label,0,6); ctx.restore();
+  const im = images.upgradePawIcon;
+  const bob = Math.sin(time*2.5 + u.x*0.01) * 7;
+  const glow = 18 + (Math.sin(time*5 + u.x*0.02) * 0.5 + 0.5) * 18;
+  ctx.save();
+  ctx.translate(u.x, u.y + bob);
+  ctx.shadowColor = '#ffd84d';
+  ctx.shadowBlur = glow;
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = '#ffd84d';
+  ctx.beginPath(); ctx.arc(0,0,50 + glow*0.18,0,Math.PI*2); ctx.fill();
+  ctx.globalAlpha = 1;
+  if (im && im.width) ctx.drawImage(im,-46,-46,92,92);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle='rgba(255,245,221,.95)';
+  ctx.font='900 14px system-ui';
+  ctx.textAlign='center';
+  ctx.fillText(u.label, 0, 66);
+  ctx.restore();
 }
 function drawMouse(m){
-  if (!images.mouse || !images.mouse.width) return;
+  const im = images.mouseLarge || images.mouse;
+  if (!im || !im.width) return;
   ctx.save();
   if (m.alive){
     const flip = m.v < 0 ? -1 : 1;
     ctx.translate(m.x + (flip<0?m.w:0), m.y);
     ctx.scale(flip,1);
-    ctx.drawImage(images.mouse, 0, -8, m.w, m.h+14);
+    ctx.drawImage(im, 0, -6, m.w, m.h+10);
   } else if (m.deadTimer > 0) {
     ctx.translate(m.x + m.w/2, m.y + m.h/2);
     ctx.rotate(m.rot);
     ctx.scale(1,-1);
-    ctx.drawImage(images.mouse, -m.w/2, -m.h/2, m.w, m.h);
+    ctx.drawImage(im, -m.w/2, -m.h/2, m.w, m.h);
   }
   ctx.restore();
 }
