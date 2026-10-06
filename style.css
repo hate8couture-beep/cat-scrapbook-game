@@ -1,0 +1,12 @@
+html,body{margin:0;height:100%;background:#f0dfc8;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+*{box-sizing:border-box}
+#wrap{position:relative;width:100vw;height:100vh;display:grid;place-items:center;padding:8px}
+#game{max-width:100%;max-height:100%;width:auto;height:auto;display:block;background:#ead0ac;border-radius:24px;box-shadow:0 20px 70px rgba(60,35,20,.28)}
+#loading{position:absolute;inset:auto auto 50% auto;transform:translateY(50%);padding:16px 24px;border-radius:18px;background:rgba(255,250,242,.92);color:#4b372d;font-weight:800;letter-spacing:.3px;box-shadow:0 12px 30px rgba(0,0,0,.12)}
+#touch{position:absolute;inset:auto 18px 18px 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;pointer-events:none}
+#touch .pad,#touch .forms,#touch .jump{pointer-events:auto}
+#touch .pad{display:flex;gap:10px}
+#touch .forms{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#touch button{border:none;border-radius:16px;background:rgba(255,245,230,.92);color:#47352c;font-weight:900;box-shadow:0 8px 20px rgba(69,44,31,.18);padding:14px 18px;font-size:22px;min-width:60px;min-height:56px}
+#touch .jump{font-size:20px;padding:18px 20px;min-width:140px}
+@media (min-width: 901px){#touch{display:none}}
